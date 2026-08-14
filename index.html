@@ -2684,6 +2684,122 @@ var qrcode = function() {
     margin:34px 0 10px;
     opacity:0.6;
   }
+
+  /* Flyer / event description */
+  .flyer{
+    margin-top:24px;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(circle at 0% 0%, rgba(232,163,61,0.12), transparent 55%),
+      linear-gradient(160deg, #FFFFFF, #FFFBF3);
+    box-shadow:0 4px 18px rgba(90,23,23,0.07);
+  }
+  .flyer-title{
+    text-align:center;
+    font-family:Georgia, serif;
+    font-size:22px;
+    color:var(--deep-maroon);
+    padding:22px 20px 4px;
+  }
+  .flyer-body{
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:14px;
+    color:#5b4a38;
+    text-align:center;
+    padding:0 24px 12px;
+    line-height:1.5;
+  }
+  .flyer-details{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px 26px;
+    margin-top:14px;
+  }
+  .flyer-details > div{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:90px;
+  }
+  .flyer-details span{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--gold);
+    font-weight:700;
+  }
+  .flyer-details strong{
+    font-size:13px;
+    color:var(--ink);
+    margin-top:2px;
+  }
+  .flyer-fees{
+    background:var(--deep-maroon);
+    color:#F6E7CE;
+    padding:16px 24px;
+  }
+  .fee-heading{
+    text-align:center;
+    font-family:'Trebuchet MS', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    font-size:12px;
+    font-weight:700;
+    color:var(--marigold);
+    margin-bottom:10px;
+  }
+  .fee-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:14px;
+    padding:5px 0;
+    border-bottom:1px solid rgba(246,231,206,0.15);
+  }
+  .fee-row:last-child{border-bottom:none;}
+  .fee-row strong{color:#F6E7CE;}
+
+  /* Policy */
+  .policy-text{
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:13.5px;
+    line-height:1.55;
+    color:#5b4a38;
+    margin:0 0 12px;
+  }
+  .policy-fees{
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:13.5px;
+    color:var(--maroon);
+    background:rgba(232,163,61,0.1);
+    border-radius:8px;
+    padding:10px 12px;
+    margin:0 0 16px;
+  }
+  .agree-row{
+    display:flex;
+    gap:11px;
+    align-items:flex-start;
+    font-family:'Trebuchet MS', sans-serif;
+    font-size:13px;
+    line-height:1.5;
+    color:#4a3c2c;
+    cursor:pointer;
+  }
+  .agree-row input[type=checkbox]{
+    width:20px;
+    height:20px;
+    min-width:20px;
+    margin-top:1px;
+    accent-color:var(--maroon);
+    cursor:pointer;
+  }
+
+  /* Free ticket badge */
+  .badge.free{background:rgba(120,120,120,0.14); color:#5b5b5b;}
 </style>
 </head>
 <body>
@@ -2692,10 +2808,34 @@ var qrcode = function() {
     <span class="om">ॐ</span>
     <div class="eyebrow">Arya Samaj — Geet Sangeet</div>
     <h1>Event Registration</h1>
-    <p class="sub">Please share your details below. Adult tickets are $20 and kids' tickets (under 12) are $5. Once you confirm payment, you'll receive a QR code — bring it (screenshot or printout) for check-in at the door.</p>
+    <p class="sub">Register below to reserve your seats for an evening of geet-sangeet. Once you submit, send your registration fee by e-transfer and you'll receive a QR code — bring it (screenshot or printout) for check-in at the door.</p>
   </header>
 
-  <p style="text-align:center; font-family:'Trebuchet MS', sans-serif; font-size:12px; color:#a08066; margin-top:-10px;">
+  <!-- ===== FLYER / EVENT DESCRIPTION =====
+       Edit the text below with your real date, time and venue.
+       To use an actual flyer image instead, replace this whole
+       <div class="flyer"> ... </div> block with:
+       <img src="flyer.jpg" alt="Geet Sangeet flyer" style="width:100%;border-radius:12px;margin-top:20px;">
+       (upload flyer.jpg to the same GitHub folder). -->
+  <div class="flyer">
+    <div class="flyer-title">✦ Geet Sangeet — A Musical Evening ✦</div>
+    <div class="flyer-body">
+      Join the Arya Samaj community for an evening of devotional songs and music.
+      <div class="flyer-details">
+        <div><span>📅 Date</span><strong>To be announced</strong></div>
+        <div><span>🕕 Time</span><strong>To be announced</strong></div>
+        <div><span>📍 Venue</span><strong>Arya Samaj</strong></div>
+      </div>
+    </div>
+    <div class="flyer-fees">
+      <div class="fee-heading">Entry Fee</div>
+      <div class="fee-row"><span>Adults (16+)</span><strong>$20 / person</strong></div>
+      <div class="fee-row"><span>Children 5–15 years</span><strong>$5 / person</strong></div>
+      <div class="fee-row"><span>Children under 5 years</span><strong>FREE</strong></div>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-family:'Trebuchet MS', sans-serif; font-size:12px; color:#a08066; margin-top:14px;">
     Volunteering at the door? <a href="checkin.html" style="color:var(--maroon); font-weight:700;">Open the check-in scanner →</a>
   </p>
 
@@ -2712,9 +2852,13 @@ var qrcode = function() {
           <input type="email" id="email" required placeholder="you@example.com">
         </div>
         <div class="field">
-          <label for="dob">Date of Birth</label>
-          <input type="date" id="dob" required>
+          <label for="phone">Telephone</label>
+          <input type="tel" id="phone" required placeholder="e.g. 416-555-1234">
         </div>
+      </div>
+      <div class="field" style="max-width:160px;">
+        <label for="primaryAge">Your Age</label>
+        <input type="number" id="primaryAge" min="0" max="120" required placeholder="Age">
       </div>
     </div>
 
@@ -2735,6 +2879,17 @@ var qrcode = function() {
         <span class="label">Total Due</span>
         <span class="value" id="totalValue">$0</span>
       </div>
+    </div>
+
+    <div class="card policy-card">
+      <h2>Registration &amp; Refund Policy</h2>
+      <p class="policy-text"><strong>Important:</strong> Registration fees are non-refundable. Food, seating and other event arrangements will be made based on the number of confirmed registrations.</p>
+      <p class="policy-text">Seats are very limited, so we encourage you to register early to secure your place. Once your registration and payment are confirmed, cancellations or no-shows will not be eligible for a refund.</p>
+      <p class="policy-fees"><strong>Entry Fee:</strong> Adults: $20 per person; Children 5–15 years: $5 per person; Children under 5 years: FREE.</p>
+      <label class="agree-row">
+        <input type="checkbox" id="agreeBox">
+        <span>I agree that I will send the applicable registration fee by e-transfer to <strong>arya.samaj.miss@gmail.com</strong> after submitting this registration form. I understand that cash payments will not be accepted and that my registration is subject to payment being received. I will include the name of the person registering in the e-transfer message.</span>
+      </label>
     </div>
 
     <button type="submit" class="submit-btn" id="confirmBtn">Confirm Registration</button>
@@ -2765,31 +2920,30 @@ var qrcode = function() {
 </div>
 
 <script>
-const PRICE_ADULT = 20;
-const PRICE_KID = 5;
-const KID_AGE_CUTOFF = 12; // under this age counts as a kid ticket
 const PAY_EMAIL = "Arya.samaj.miss@gmail.com";
+
+// Ticket tiers by age:
+//   under 5      -> FREE ($0)
+//   5 to 15      -> Child ($5)
+//   16 and over  -> Adult ($20)
+function ticketFor(age){
+  if(age === null || isNaN(age)) return null;
+  if(age < 5)  return { type: 'free',  price: 0,  label: 'Free' };
+  if(age <= 15) return { type: 'kid',   price: 5,  label: 'Child $5' };
+  return               { type: 'adult', price: 20, label: 'Adult $20' };
+}
 
 const numPeopleInput = document.getElementById('numPeople');
 const membersContainer = document.getElementById('membersContainer');
 const addMemberBtn = document.getElementById('addMemberBtn');
 const fullNameInput = document.getElementById('fullName');
 const emailInput = document.getElementById('email');
-const dobInput = document.getElementById('dob');
+const phoneInput = document.getElementById('phone');
+const primaryAgeInput = document.getElementById('primaryAge');
+const agreeBox = document.getElementById('agreeBox');
 
 let memberCount = 0;
 let currentRegistration = null; // holds the record once submitted
-
-function ageFromDOB(dobStr){
-  if(!dobStr) return null;
-  const dob = new Date(dobStr);
-  if(isNaN(dob)) return null;
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if(m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
-  return age;
-}
 
 function createMemberBox(index){
   const box = document.createElement('div');
@@ -2885,7 +3039,7 @@ numPeopleInput.addEventListener('input', () => {
 });
 
 addMemberBtn.addEventListener('click', addMember);
-dobInput.addEventListener('input', calculateTotal);
+primaryAgeInput.addEventListener('input', calculateTotal);
 fullNameInput.addEventListener('input', calculateTotal);
 
 function escapeHtml(str){
@@ -2896,17 +3050,14 @@ function escapeHtml(str){
 
 function buildAttendeeList(){
   const attendees = [];
-  const primaryAge = ageFromDOB(dobInput.value);
+  const primaryAgeVal = primaryAgeInput.value;
   const primaryName = fullNameInput.value.trim() || 'You';
-  if(primaryAge !== null){
-    const isKid = primaryAge < KID_AGE_CUTOFF;
-    attendees.push({
-      name: primaryName,
-      age: primaryAge,
-      relation: 'Self',
-      ticketType: isKid ? 'kid' : 'adult',
-      price: isKid ? PRICE_KID : PRICE_ADULT
-    });
+  if(primaryAgeVal !== ''){
+    const age = parseInt(primaryAgeVal, 10);
+    const t = ticketFor(age);
+    if(t){
+      attendees.push({ name: primaryName, age, relation: 'Self', ticketType: t.type, price: t.price });
+    }
   }
   const boxes = membersContainer.querySelectorAll('.member-box');
   boxes.forEach((box, i) => {
@@ -2915,15 +3066,9 @@ function buildAttendeeList(){
     const relationVal = box.querySelector('.mRelation').value || 'Other';
     if(ageVal === '') return;
     const age = parseInt(ageVal, 10);
-    if(isNaN(age)) return;
-    const isKid = age < KID_AGE_CUTOFF;
-    attendees.push({
-      name: nameVal,
-      age: age,
-      relation: relationVal,
-      ticketType: isKid ? 'kid' : 'adult',
-      price: isKid ? PRICE_KID : PRICE_ADULT
-    });
+    const t = ticketFor(age);
+    if(!t) return;
+    attendees.push({ name: nameVal, age, relation: relationVal, ticketType: t.type, price: t.price });
   });
   return attendees;
 }
@@ -2935,10 +3080,11 @@ function calculateTotal(){
   let total = 0;
   attendees.forEach(a => {
     total += a.price;
+    const label = a.ticketType === 'free' ? 'Free' : (a.ticketType === 'kid' ? 'Child $5' : 'Adult $20');
     summaryLines.insertAdjacentHTML('beforeend', `
       <div class="summary-line">
-        <span class="name">${escapeHtml(a.name)} <span class="badge ${a.ticketType}">${a.ticketType === 'kid' ? 'Kid $5' : 'Adult $20'}</span></span>
-        <span>$${a.price}</span>
+        <span class="name">${escapeHtml(a.name)} <span class="badge ${a.ticketType}">${label}</span></span>
+        <span>${a.price === 0 ? 'Free' : '$' + a.price}</span>
       </div>
     `);
   });
@@ -2996,8 +3142,15 @@ document.getElementById('regForm').addEventListener('submit', async function(e){
   const total = calculateTotal();
   const attendees = buildAttendeeList();
 
-  if(!fullNameInput.value.trim() || !emailInput.value.trim() || !dobInput.value){
-    formError.textContent = 'Please fill in your name, email, and date of birth.';
+  if(!fullNameInput.value.trim() || !emailInput.value.trim() || !phoneInput.value.trim() || primaryAgeInput.value === ''){
+    formError.textContent = 'Please fill in your name, email, telephone, and age.';
+    formError.classList.add('show');
+    formError.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  if(!agreeBox.checked){
+    formError.textContent = 'Please read and agree to the Registration & Refund Policy before submitting.';
     formError.classList.add('show');
     formError.scrollIntoView({behavior:'smooth', block:'center'});
     return;
@@ -3012,7 +3165,7 @@ document.getElementById('regForm').addEventListener('submit', async function(e){
     code,
     primaryName: fullNameInput.value.trim(),
     email: emailInput.value.trim(),
-    dob: dobInput.value,
+    phone: phoneInput.value.trim(),
     attendees,
     total,
     paid: false,

@@ -10615,7 +10615,7 @@ function renderResult(record){
       <td>${escapeHtml(a.name)}</td>
       <td>${a.age}</td>
       <td>${escapeHtml(a.relation)}</td>
-      <td>${a.ticketType === 'kid' ? 'Kid ($5)' : 'Adult ($20)'}</td>
+      <td>${a.ticketType === 'free' ? 'Free' : (a.ticketType === 'kid' ? 'Child ($5)' : 'Adult ($20)')}</td>
     </tr>
   `).join('');
 
@@ -10623,7 +10623,7 @@ function renderResult(record){
     <div class="result-header">
       <div>
         <h2>${escapeHtml(record.primaryName)}</h2>
-        <div class="code-tag">${record.code} · ${record.email || ''}</div>
+        <div class="code-tag">${record.code} · ${record.email || ''}${record.phone ? ' · ' + escapeHtml(record.phone) : ''}</div>
       </div>
       <span class="status-pill ${statusPill}">${statusLabel}</span>
     </div>

@@ -1,114 +1,115 @@
 /**
  * Geet Sangeet Registration — Google Sheets backend
  *
- * Uses GET for every action (including writes) because Apps Script's
- * /exec URL issues a redirect, and browsers silently downgrade POST
- * requests to GET on that kind of redirect — which drops the request
- * body. GET requests survive the redirect intact, so all data is sent
- * as URL query parameters instead.
+ * Writes/reads by HEADER NAME (not fixed column position), so it keeps
+ * working even if the sheet's columns are reordered, and it auto-adds any
+ * missing columns. All actions use GET because Apps Script's /exec URL
+ * redirects and browsers drop POST bodies on that redirect.
  *
- * SETUP:
- * 1. Open the REAL spreadsheet (from Google Drive — not the pubhtml link).
- * 2. Extensions -> Apps Script.
- * 3. Replace all code with this file's contents, save.
- * 4. Deploy -> Manage deployments -> Edit (pencil) -> New version -> Deploy.
- *    (Or Deploy -> New deployment if this is your first time.)
- *    - Execute as: Me
- *    - Who has access: Anyone
- * 5. Copy the Web app URL (ends in /exec) into both HTML apps as API_URL.
+ * SETUP / UPDATE:
+ * 1. Google Sheet -> Extensions -> Apps Script.
+ * 2. Replace all code with this file, Save.
+ * 3. Deploy -> Manage deployments -> (pencil) -> Version: New version -> Deploy.
+ *    Execute as: Me   |   Who has access: Anyone
+ *
+ * NOTE: If you already have a "Registrations" tab from an earlier version
+ * that used a "DOB" column, this code will simply add a "Phone" column at
+ * the end and leave DOB empty — no data is lost. If you'd rather start
+ * clean, delete the "Registrations" tab once and it will be recreated with
+ * the correct headers.
  */
 
 const SHEET_NAME = 'Registrations';
+const HEADERS = ['Code','PrimaryName','Email','Phone','AttendeesJSON',
+                 'Total','Paid','PaidAt','CreatedAt','CheckedIn','CheckedInAt'];
 
 function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow([
-      'Code', 'PrimaryName', 'Email', 'DOB', 'AttendeesJSON',
-      'Total', 'Paid', 'PaidAt', 'CreatedAt', 'CheckedIn', 'CheckedInAt'
-    ]);
+    sheet.appendRow(HEADERS);
+    return sheet;
+  }
+  // Ensure every expected header exists; append any that are missing.
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  let existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  const missing = HEADERS.filter(h => existing.indexOf(h) === -1);
+  if (missing.length) {
+    sheet.getRange(1, existing.length + 1, 1, missing.length).setValues([missing]);
   }
   return sheet;
 }
 
-function doGet(e) {
-  return handleRequest(e);
+function headerMap(sheet) {
+  const lastCol = sheet.getLastColumn();
+  const row = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(String);
+  const map = {};
+  row.forEach((h, i) => { map[h] = i; }); // 0-based
+  return map;
 }
 
-function doPost(e) {
-  // Kept for completeness, but the front-end apps only use GET (see note above).
-  return handleRequest(e);
-}
+function doGet(e)  { return handleRequest(e); }
+function doPost(e) { return handleRequest(e); }
 
 function handleRequest(e) {
   const action = e.parameter.action;
   const sheet = getSheet();
+  const map = headerMap(sheet);
+
+  if (action === 'getAll') {
+    return jsonOut(readAllRows(sheet, map));
+  }
 
   if (action === 'getByCode') {
     const code = (e.parameter.code || '').trim().toUpperCase();
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const rows = data.slice(1).filter(r => r[headers.indexOf('Code')]).map(r => rowToObj(headers, r));
+    const rows = readAllRows(sheet, map);
     const found = rows.find(r => (r.code || '').toUpperCase() === code);
     return jsonOut(found || {});
   }
 
-  if (action === 'getAll') {
-    const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const rows = data.slice(1).filter(r => r[headers.indexOf('Code')]).map(r => rowToObj(headers, r));
-    return jsonOut(rows);
-  }
-
   if (action === 'create') {
     let record;
-    try {
-      record = JSON.parse(e.parameter.data);
-    } catch (err) {
-      return jsonOut({ success: false, error: 'bad data' });
-    }
-    sheet.appendRow([
-      record.code,
-      record.primaryName,
-      record.email,
-      record.dob,
-      JSON.stringify(record.attendees || []),
-      record.total,
-      false,
-      '',
-      new Date().toISOString(),
-      false,
-      ''
-    ]);
+    try { record = JSON.parse(e.parameter.data); }
+    catch (err) { return jsonOut({ success: false, error: 'bad data' }); }
+
+    const width = sheet.getLastColumn();
+    const row = new Array(width).fill('');
+    const put = (h, v) => { if (map[h] !== undefined) row[map[h]] = v; };
+    put('Code', record.code);
+    put('PrimaryName', record.primaryName);
+    put('Email', record.email);
+    put('Phone', record.phone || '');
+    put('AttendeesJSON', JSON.stringify(record.attendees || []));
+    put('Total', record.total);
+    put('Paid', false);
+    put('PaidAt', '');
+    put('CreatedAt', new Date().toISOString());
+    put('CheckedIn', false);
+    put('CheckedInAt', '');
+    sheet.appendRow(row);
     return jsonOut({ success: true });
   }
 
   if (action === 'markPaid' || action === 'checkin') {
     const data = sheet.getDataRange().getValues();
-    const headers = data[0];
-    const codeCol = headers.indexOf('Code');
+    const codeCol = map['Code'];
     const target = (e.parameter.code || '').trim().toUpperCase();
 
     for (let i = 1; i < data.length; i++) {
       if ((data[i][codeCol] || '').toString().toUpperCase() === target) {
         const rowNum = i + 1;
-
         if (action === 'markPaid') {
-          sheet.getRange(rowNum, headers.indexOf('Paid') + 1).setValue(true);
-          sheet.getRange(rowNum, headers.indexOf('PaidAt') + 1).setValue(new Date().toISOString());
+          sheet.getRange(rowNum, map['Paid'] + 1).setValue(true);
+          sheet.getRange(rowNum, map['PaidAt'] + 1).setValue(new Date().toISOString());
         } else {
-          const checkedInColIdx = headers.indexOf('CheckedIn');
-          const current = data[i][checkedInColIdx] === true;
+          const current = data[i][map['CheckedIn']] === true;
           const newVal = !current;
-          sheet.getRange(rowNum, checkedInColIdx + 1).setValue(newVal);
-          sheet.getRange(rowNum, headers.indexOf('CheckedInAt') + 1)
-            .setValue(newVal ? new Date().toISOString() : '');
+          sheet.getRange(rowNum, map['CheckedIn'] + 1).setValue(newVal);
+          sheet.getRange(rowNum, map['CheckedInAt'] + 1).setValue(newVal ? new Date().toISOString() : '');
         }
-
-        const refreshed = sheet.getRange(rowNum, 1, 1, headers.length).getValues()[0];
-        return jsonOut(rowToObj(headers, refreshed));
+        const refreshed = sheet.getRange(rowNum, 1, 1, sheet.getLastColumn()).getValues()[0];
+        return jsonOut(rowToObj(map, refreshed));
       }
     }
     return jsonOut({ success: false, error: 'not found' });
@@ -117,26 +118,32 @@ function handleRequest(e) {
   return jsonOut({ error: 'unknown action' });
 }
 
-function rowToObj(headers, row) {
-  const idx = (h) => headers.indexOf(h);
-  let attendees = [];
-  try {
-    attendees = JSON.parse(row[idx('AttendeesJSON')] || '[]');
-  } catch (err) {
-    attendees = [];
+function readAllRows(sheet, map) {
+  const data = sheet.getDataRange().getValues();
+  const rows = [];
+  for (let i = 1; i < data.length; i++) {
+    if (!data[i][map['Code']]) continue;
+    rows.push(rowToObj(map, data[i]));
   }
+  return rows;
+}
+
+function rowToObj(map, row) {
+  const g = (h) => (map[h] !== undefined ? row[map[h]] : '');
+  let attendees = [];
+  try { attendees = JSON.parse(g('AttendeesJSON') || '[]'); } catch (err) { attendees = []; }
   return {
-    code: row[idx('Code')],
-    primaryName: row[idx('PrimaryName')],
-    email: row[idx('Email')],
-    dob: row[idx('DOB')],
+    code: g('Code'),
+    primaryName: g('PrimaryName'),
+    email: g('Email'),
+    phone: g('Phone'),
     attendees: attendees,
-    total: row[idx('Total')],
-    paid: row[idx('Paid')] === true,
-    paidAt: row[idx('PaidAt')],
-    createdAt: row[idx('CreatedAt')],
-    checkedIn: row[idx('CheckedIn')] === true,
-    checkedInAt: row[idx('CheckedInAt')]
+    total: g('Total'),
+    paid: g('Paid') === true,
+    paidAt: g('PaidAt'),
+    createdAt: g('CreatedAt'),
+    checkedIn: g('CheckedIn') === true,
+    checkedInAt: g('CheckedInAt')
   };
 }
 
